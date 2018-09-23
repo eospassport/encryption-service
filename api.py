@@ -27,22 +27,26 @@ def bin_array(num, m):
     """Convert a positive integer num into an m-bit bit vector"""
     return numpy.array(list(numpy.binary_repr(num).zfill(m))).astype(numpy.bool)
 
+
+def list_or_plain(possible_array):
+  if possible_array.shape is ():
+    return int(str(possible_array)) # num
+  else:
+    return [list_or_plain(child) for child in possible_array]
+
 def array_to_lists(array):
-  return array
-  # return pd.Series(array).to_json(orient='values')
-  # return numpy.rec.fromarrays(array).tolist()
+  return list_or_plain(array)
 
 def serialize(lwe):
-  pass
-  # return dict(
-  #   a=array_to_lists(lwe.a),
-  #   b=array_to_lists(lwe.b),
-  #   var=array_to_lists(lwe.current_variances),
-  #   params=dict(
-  #     size=lwe.params.size,
-  #     min=lwe.params.min_noise,
-  #     max=lwe.params.max_noise)
-  # )
+  return dict(
+    a=array_to_lists(lwe.a),
+    b=array_to_lists(lwe.b),
+    var=0,#array_to_lists(lwe.current_variances),
+    params=dict(
+      size=lwe.params.size,
+      min=lwe.params.min_noise,
+      max=lwe.params.max_noise)
+  )
 
 class VM:
   def age_restriction(self, payload):
@@ -77,8 +81,8 @@ class VM:
 
     for key, value in flat.items():
       if isinstance(value, (int, float)):
-        result[key] = value
-        # result[key] = serialize(nufhe.encrypt(sputnik.thr, rng, secret_key, bin_array(value, SIZE)))
+        # result[key] = value
+        result[key] = serialize(nufhe.encrypt(sputnik.thr, rng, secret_key, bin_array(value, SIZE)))
 
 
     # print(result['country'])

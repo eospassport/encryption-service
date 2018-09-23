@@ -1,0 +1,21 @@
+EXEC plain mask16 mask32 mask64 mask128
+KEY test_key
+SIZE 32
+
+AND plain mask16
+PUSH STATE is16
+AND plain mask32
+PUSH STATE is32
+AND plain mask64
+PUSH STATE is64
+AND plain mask128
+PUSH STATE is128
+
+OR is16 is32
+PUSH STATE is16or32
+OR is16or32 is64
+PUSH STATE is16or32or64
+OR is16or32or64 is128
+PUSH STATE is16or32or64or128
+
+EXIT

@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pytest = "*"
+"pysha3" = "*"
+click = "*"
+sputnik = {editable = true, path = "."}
+merkletools = "*"
+numpy = "*"
+reikna = "*"
+nufhe = {git = "https://github.com/nucypher/nufhe.git", ref = "master"}
+"web3" = "*"
+vyper = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"

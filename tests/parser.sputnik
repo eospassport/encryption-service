@@ -1,0 +1,6 @@
+EXEC PLAIN PAD
+
+; Testing comment
+XOR PLAIN PAD 0 0
+
+END

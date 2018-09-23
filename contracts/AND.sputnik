@@ -1,0 +1,7 @@
+EXEC left right
+KEY test_key
+SIZE 32
+
+AND left right
+
+EXIT

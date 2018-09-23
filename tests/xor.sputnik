@@ -1,0 +1,3 @@
+EXEC a b
+XOR a b
+EXIT

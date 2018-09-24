@@ -1,9 +1,7 @@
 #1
 import nufhe
 import numpy
-# import web3
 import pickle
-# from web3.auto.gethdev import w3
 from binascii import unhexlify
 from sputnik.engine import Sputnik
 from sputnik.parser import Parser
@@ -50,17 +48,6 @@ def calc(age):
     with open('contracts/hasheater.vy', 'r') as f:
         contract_code = f.read()
 
-    # contract_bytecode = compiler.compile(contract_code).hex()
-    # contract_abi = compiler.mk_full_signature(contract_code)
-    # w3.eth.defaultAccount = w3.eth.accounts[0]
-
-    # Contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)
-    # tx_hash = Contract.constructor().transact()
-    # tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-    # contract = w3.eth.contract(
-            # address=tx_receipt.contractAddress,
-            # abi=contract_abi)
-
     #3
     # Setup numpy (insecure, but it's a hackathon...)
     rng = numpy.random.RandomState()
@@ -91,12 +78,6 @@ def calc(age):
     # reference = plain + ~pad
     dec_fhe_ref = nufhe.decrypt(sputnik.thr, secret_key, contract_state_out)
 
-    # print(len(plain))
-    # print(plain)
-    # print(pad)
-    # print(reference)
-    # print(plain)
-    # print(pad)
     allow = True
     for bit in dec_fhe_ref:
         if bit:
@@ -105,19 +86,6 @@ def calc(age):
 
     print(f"Refect at {age}? {allow}")
     print(dec_fhe_ref)
-
-
-    #8
-    ## Commit the root to the blockchain and print it 
-    # root = merkle_tree.get_merkle_root()
-    # h1 = contract.functions.add(root).transact()
-    # w3.eth.waitForTransactionReceipt(h1)
-    # print(root)
-
-    #9
-    # Verify that logic computation was done by checking the blockchain
-    # contract_execution_root = contract.functions.read(0).call()
-
 
 
 calc(15)

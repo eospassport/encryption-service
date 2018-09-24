@@ -50,14 +50,30 @@ def serialize(lwe):
 
 class VM:
   def age_restriction(self, payload):
+    print(payload)
+    # return payload['birthdate']
+    rng = numpy.random.RandomState(42)
+    rngB = numpy.random.RandomState(43)
     SputnikParser = Parser('contracts/contract.sputnik')
     proggy = SputnikParser.get_program()
     sputnik = Sputnik(proggy, None)
+    secret_key, bootstrap_key = nufhe.make_key_pair(sputnik.thr, rng, transform_type='NTT')
+    secret_key_b, bootstrap_key_b = nufhe.make_key_pair(sputnik.thr, rngB, transform_type='NTT')
 
-    enc_mask16 = bin_array(payload.constraits[0], SIZE)
-    enc_mask32 = bin_array(payload.constraits[1], SIZE)
-    enc_mask64 = bin_array(payload.constraits[2], SIZE)
-    enc_mask128 = bin_array(payload.constraits[3], SIZE)
+    plain = bin_array(payload['birthdate'], SIZE)
+    mask16 = bin_array(payload['constraits'][0], SIZE)
+    mask32 = bin_array(payload['constraits'][1], SIZE)
+    mask64 = bin_array(payload['constraits'][2], SIZE)
+    mask128 = bin_array(payload['constraits'][3], SIZE)
+    expected = bin_array(0, SIZE)
+
+    enc_expected = nufhe.encrypt(sputnik.thr, rng, secret_key, expected)
+    enc_mask16 = nufhe.encrypt(sputnik.thr, rng, secret_key, mask16)
+    enc_mask32 = nufhe.encrypt(sputnik.thr, rng, secret_key, mask32)
+    enc_mask64 = nufhe.encrypt(sputnik.thr, rng, secret_key, mask64)
+    enc_mask128 = nufhe.encrypt(sputnik.thr, rng, secret_key, mask128)
+    enc_plain = nufhe.encrypt(sputnik.thr, rng, secret_key, plain)
+
 
     contract_state_out, merkle_tree = sputnik.execute_program(
       plain=enc_plain, 
@@ -67,13 +83,26 @@ class VM:
       mask128=enc_mask128, 
       test_key=bootstrap_key)
 
-    return dict(out=contract_state_out, tree=merkle_tree)
+    dec_out = nufhe.decrypt(sputnik.thr, secret_key, contract_state_out)
+    dec_trash = nufhe.decrypt(sputnik.thr, secret_key_b, contract_state_out)
+    enc_trash = nufhe.encrypt(sputnik.thr, secret_key_b, dec_trash)
+    dec_trash_to_orginal = nufhe.decrypt(sputnik.thr, secret_key, enc_trash)
+
+    print(dec_trash)
+    out = False 
+    for i in range(dec_out.shape[0]):
+      if dec_out[i] is plain[i]:
+        out = True
+        break
+
+    print(dec_out)
+    return dict(out=out)
 
   def encrypt(self, data, base):
+    rng = numpy.random.RandomState(42)
     SputnikParser = Parser('contracts/contract.sputnik')
     proggy = SputnikParser.get_program()
     sputnik = Sputnik(proggy, None)
-    rng = numpy.random.RandomState(42)
     secret_key, bootstrap_key = nufhe.make_key_pair(sputnik.thr, rng, transform_type='NTT')
 
     result = dict()
